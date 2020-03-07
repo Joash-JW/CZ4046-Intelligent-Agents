@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 public class Grid {
     private List<Cell[]> grid = new ArrayList<Cell[]>();
+    private static final double discount = 0.99;
 
     public Grid(String path) {
         /**
@@ -99,10 +100,11 @@ public class Grid {
         String intendedAction = cell.getCellPolicy();
         double utility = cell.getReward();
         switch (intendedAction) {
-            case ">": utility +=
-            case "<":
-            case "^":
-            case "v":
+            case ">": utility += 1; break;
+            case "<": break;
+            case "^": break;
+            case "v": break;
         }
+        return utility;
     }
 }

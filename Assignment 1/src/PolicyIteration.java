@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 
 public class PolicyIteration {
@@ -9,7 +8,7 @@ public class PolicyIteration {
     private static double DISCOUNT = 0.99;
 
     public static void main(String[] args) {
-        Grid grid = new Grid("./env/map1.txt");
+        Grid grid = new Grid("./Assignment 1/map/map1.txt");
         initPolicy(grid);
         System.out.println("\n==============");
         System.out.println("Initial Policy");
@@ -33,8 +32,8 @@ public class PolicyIteration {
 
     public static void evaluatePolicy(Grid grid) {
         List<Cell[]> map = grid.getGrid();
-        for (int x=0; x<rows; y++) {
-            for (int y=0; y<cols; x++) {
+        for (int x=0; x<rows; x++) {
+            for (int y=0; y<cols; y++) {
                 try {
                     String intendedAction = map.get(x)[y].getCellPolicy();
 
