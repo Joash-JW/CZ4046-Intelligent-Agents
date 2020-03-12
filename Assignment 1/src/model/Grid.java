@@ -3,12 +3,16 @@ package model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-
+/*
+ * A Grid class represents the maze environment and contains:
+ * 1. grid - a list of State objects
+ * 2. MAX_ROW - maximum number of rows
+ * 3. MAX_COL - maximum number of columns
+ * */
 public class Grid {
-    private List<State[]> grid = new ArrayList<State[]>();
+    private ArrayList<State[]> grid = new ArrayList<State[]>();
     public final int MAX_ROW;
     public final int MAX_COL;
 
@@ -36,29 +40,12 @@ public class Grid {
         MAX_ROW = grid.size();
         MAX_COL = grid.get(0).length;
         System.out.println("Grid of " + MAX_ROW + "x" + MAX_COL + " loaded");
-        //System.out.println("Grid:"); this.printUtilities();
-        printRewards();
+        //printRewards();
     }
 
     /**
-     * Function that prints the grid with agent current position
+     * Function that prints the reward values
      */
-    public void printGrid(){
-        for (State[] states : this.grid) {
-            for (State state : states) {
-                if (state.isWall()) {
-                    System.out.print("| ");
-                    System.out.print("Wall");
-                    System.out.print(" ");
-                }
-                else if (state.isAgent()){
-                    System.out.print("|   X  ");
-                }
-                else System.out.print("|      ");
-            } System.out.print("|\n");
-        }
-    }
-
     public void printRewards() {
         for (State[] states : this.grid) {
             for (State state : states) {
@@ -77,5 +64,5 @@ public class Grid {
     }
 
     /*Getters*/
-    public List<State[]> getGrid() { return grid; }
+    public ArrayList<State[]> getGrid() { return grid; }
 }

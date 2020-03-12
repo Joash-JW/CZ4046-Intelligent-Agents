@@ -1,6 +1,10 @@
 package util;
 
+/*
+ * This static class contains constants that needs to be used in the program
+ * */
 public class Constants {
+    // Reward values
     public static double GREEN_REWARD = +1.00;
     public static double BROWN_REWARD = -1.00;
     public static double WHITE_REWARD = -0.04;
@@ -14,11 +18,11 @@ public class Constants {
     public enum Actions { U, L, R, D } // actions: up, left, right, down
 
     // Constant k (i.e. number of times simplified Bellman update is executed to produce the next utility estimate)
-    public static final int I = 100;
+    public static final int I = 500;
 
-    public static final double Rmax = 1.0;
+    //public static final double Rmax = 1.0;
 
-    public static final double c = 1/(1-DISCOUNT);
+    //public static final double c = 1/(1-DISCOUNT);
 
-    public static final double UTILITY_UPPER_BOUND = c*Rmax;
+    //public static final double UTILITY_UPPER_BOUND = c*Rmax;
 }

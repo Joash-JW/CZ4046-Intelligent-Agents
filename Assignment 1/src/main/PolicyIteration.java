@@ -94,7 +94,7 @@ public class PolicyIteration {
                     double rightUtility = calculateUtility(row, col, right);
                     utilities[row][col] = state.getReward() + Constants.DISCOUNT*(Constants.INTENDED_PROB*intendUtility + Constants.RIGHT_ANGLE_PROB*leftUtility + Constants.RIGHT_ANGLE_PROB*rightUtility);
                 }
-        } while (++iterations != Constants.I);
+        } while (++iterations <= Constants.I);
     }
 
     /**

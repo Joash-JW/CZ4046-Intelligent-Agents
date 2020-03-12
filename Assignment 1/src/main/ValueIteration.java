@@ -4,40 +4,33 @@ import model.Grid;
 import model.State;
 import util.Constants;
 
-import java.util.Collections;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
-// https://github.com/Javelin1991/CZ4046_Intelligent_Agents/blob/master/CZ4046_Assignment_1/Assignment_1_Report.pdf
-// https://github.com/Yuance/MazeIntelligentAgents/blob/master/src/algo/ValueIteration.java
-// http://www.cs.cmu.edu/afs/cs/academic/class/15780-s16/www/slides/mdps.pdf
 public class ValueIteration {
     private static Grid grid;
     public static double[][] utilities;
     public static Constants.Actions[][] policy;
+    public static ArrayList<double[][]> history = new ArrayList<double[][]>(Constants.I);
 
     public static void main(String[] args) {
-        grid = new Grid("./map/testmap.txt");
+        grid = new Grid("./Assignment 1/map/map1.txt");
+        //grid = new Grid("./map/map1.txt");
         utilities = new double[grid.MAX_ROW][grid.MAX_COL]; // initialise utilities to 0
         policy = new Constants.Actions[grid.MAX_ROW][grid.MAX_COL];
-        initPolicy();
-        System.out.println("\n==============");
-        System.out.println("Initial Policy");
-        System.out.println("==============");
-        printPolicy();
-        System.out.println("\n");
+//        System.out.println("\n==============");
+//        System.out.println("Initial Policy");
+//        System.out.println("==============");
+//        printPolicy();
+//        System.out.println("\n");
         runValueIteration();
-    }
-
-    /**
-     * Function that initialises the grid policies, with action Right
-     */
-    public static void initPolicy() {
-        for (int row = 0; row < grid.MAX_ROW; row++)
-            for (int col = 0; col < grid.MAX_COL; col++) {
-                if (grid.getGrid().get(row)[col].isWall()) continue;
-                policy[row][col] = Constants.Actions.R; // set initial policy
-            }
+        System.out.println("Final Policy:");
+        printPolicy();
+        writeCSV();
     }
 
     /**
@@ -80,46 +73,60 @@ public class ValueIteration {
         }
     }
 
+    /**
+     * Function that returns the sum of all the utilities in the grid
+     * @return sum of all the utilities
+     * */
     public static double totalUtility() {
         double utility = 0;
-        for (int row=0; row<grid.MAX_ROW; row++) for (int col=0; col<grid.MAX_COL; col++) {
-            if (grid.getGrid().get(row)[col].isWall()) continue;
-            utility += utilities[row][col];
-        } return utility;
+        for (int row=0; row<grid.MAX_ROW; row++)
+            for (int col=0; col<grid.MAX_COL; col++) {
+                if (grid.getGrid().get(row)[col].isWall()) continue; // skip wall
+                utility += utilities[row][col];
+            }
+        return utility;
     }
 
     public static void runValueIteration() {
-        int iterations = 0;
+        int iterations = 1;
         do {
-            Constants.Actions[][] oldPolicy = new Constants.Actions[grid.MAX_ROW][grid.MAX_COL];
-            //copy2DArray(policy, oldPolicy);
-            valueIteration();
+            getBestUtility();
             System.out.println("Iteration " +iterations+ " - Total Utility: "+totalUtility());
-            updatePolicy();
-            System.out.println("New Policy:");
-            printPolicy();
-            //change = comparePolicy(oldPolicy, policy);
-        } while (++iterations != 1000);
+            double[][] temp = new double[grid.MAX_ROW][grid.MAX_COL];
+            copy2DArray(utilities, temp);
+            history.add(temp);
+        } while (++iterations <= Constants.I);
+        System.out.println("====");
         printUtilities();
     }
 
-    public static void valueIteration() {
+    public static void getBestUtility() {
         for (int row = 0; row<grid.MAX_ROW; row++)
             for (int col = 0; col < grid.MAX_COL; col++) {
                 State state = grid.getGrid().get(row)[col];
                 if (state.isWall()) continue;
-                Constants.Actions intendedAction = policy[row][col];
-                Constants.Actions left=null; Constants.Actions right=null;
-                switch (intendedAction) {
-                    case U: left = Constants.Actions.L; right = Constants.Actions.R; break;
-                    case L: left = Constants.Actions.D; right = Constants.Actions.U; break;
-                    case R: left = Constants.Actions.U; right = Constants.Actions.D; break;
-                    case D: left = Constants.Actions.R; right = Constants.Actions.L; break;
+                HashMap<Constants.Actions, Double> actionUtilities = new HashMap<>(4);
+                for (Constants.Actions intendedAction: Constants.Actions.values()) {
+                    Constants.Actions left, right;
+                    left = right = null;
+                    switch (intendedAction) {
+                        case U: left = Constants.Actions.L; right = Constants.Actions.R; break;
+                        case L: left = Constants.Actions.D; right = Constants.Actions.U; break;
+                        case R: left = Constants.Actions.U; right = Constants.Actions.D; break;
+                        case D: left = Constants.Actions.R; right = Constants.Actions.L; break;
+                    }
+                    double intendUtility = calculateUtility(row, col, intendedAction);
+                    double leftUtility = calculateUtility(row, col, left);
+                    double rightUtility = calculateUtility(row, col, right);
+                    double utility = Constants.INTENDED_PROB*intendUtility + Constants.RIGHT_ANGLE_PROB*leftUtility + Constants.RIGHT_ANGLE_PROB*rightUtility;
+                    actionUtilities.put(intendedAction, utility);
                 }
-                double intendUtility = calculateUtility(row, col, intendedAction);
-                double leftUtility = calculateUtility(row, col, left);
-                double rightUtility = calculateUtility(row, col, right);
-                utilities[row][col] = state.getReward() + Constants.DISCOUNT*(Constants.INTENDED_PROB*intendUtility + Constants.RIGHT_ANGLE_PROB*leftUtility + Constants.RIGHT_ANGLE_PROB*rightUtility);
+                Constants.Actions bestAction = null;
+                double bestUtility = Collections.max(actionUtilities.values());
+                for (Map.Entry<Constants.Actions, Double> map : actionUtilities.entrySet())
+                    if(map.getValue() == bestUtility) bestAction = map.getKey();
+                policy[row][col] = bestAction;
+                utilities[row][col] = state.getReward() + Constants.DISCOUNT*bestUtility;
             }
     }
 
@@ -141,34 +148,43 @@ public class ValueIteration {
         return utility;
     }
 
-    public static void updatePolicy() {
-        for (int row=0; row<grid.MAX_ROW; row++)
-            for (int col=0; col<grid.MAX_COL; col++) {
-                State state = grid.getGrid().get(row)[col];
-                if (state.isWall()) continue;
-                HashMap<Constants.Actions, Double> expectedUtilities = new HashMap<>(4); // up, left, right, down
-                for (Constants.Actions action : Constants.Actions.values()) {
-                    double expectedUtility = 0;
-                    switch (action) {
-                        case U: expectedUtility = Constants.INTENDED_PROB*calculateUtility(row, col, Constants.Actions.U)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.L)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.R); break;
-                        case L: expectedUtility = Constants.INTENDED_PROB*calculateUtility(row, col, Constants.Actions.L)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.D)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.U); break;
-                        case R: expectedUtility = Constants.INTENDED_PROB*calculateUtility(row, col, Constants.Actions.R)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.U)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.D); break;
-                        case D: expectedUtility = Constants.INTENDED_PROB*calculateUtility(row, col, Constants.Actions.D)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.R)
-                                + Constants.RIGHT_ANGLE_PROB*calculateUtility(row, col, Constants.Actions.L); break;
-                    }
-                    expectedUtilities.put(action, expectedUtility);
+    /**
+     * Function that copies a utility 2D array into another 2D array
+     * @param src source array of data type double to be copied from
+     * @param dst destination array of data type double to be copied to
+     * */
+    public static void copy2DArray(double[][] src, double[][] dst) {
+        for (int row = 0; row < src.length; row++)
+            System.arraycopy(src[row], 0, dst[row], 0, src[row].length);
+    }
+
+    /**
+     * Function that writes the history of utility values into a csv file
+     * */
+    public static void writeCSV() {
+        try {
+            FileWriter csv = new FileWriter("./Assignment 1/valueIteration.csv");
+
+            // write column names
+            for (int row=0; row<grid.MAX_ROW; row++)
+                for (int col=0; col<grid.MAX_COL; col++) {
+                    if (grid.getGrid().get(row)[col].isWall()) csv.write("Wall");
+                    else csv.write("("+row+", "+col+")");
+                    if (!(col==grid.MAX_COL-1 && row==grid.MAX_ROW-1)) csv.write(";");
+
                 }
-                double maxExpectedUtility = Collections.max(expectedUtilities.values());
-                Constants.Actions updatedAction = null;
-                for (Map.Entry<Constants.Actions, Double> map : expectedUtilities.entrySet()) if(map.getValue() == maxExpectedUtility) updatedAction = map.getKey();
-                policy[row][col] = updatedAction;
+            csv.write("\n");
+
+            // write values
+            for (double[][] values : history) {
+                for (int row=0; row<grid.MAX_COL; row++)
+                    for (int col=0; col<grid.MAX_COL; col++) {
+                        if (col==grid.MAX_COL-1 && row==grid.MAX_ROW-1) csv.write(Double.toString(values[row][col]));
+                        else csv.write(Double.toString(values[row][col])+";");
+                    }
+                csv.write("\n");
             }
+            csv.close();
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }
