@@ -1,0 +1,129 @@
+package algo;
+
+import model.Grid;
+import util.Constants;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public abstract class Algorithm {
+    protected Grid grid;
+    protected double[][] utilities;
+    protected Constants.Actions[][] policy;
+    protected ArrayList<double[][]> history;
+
+    /**
+     * Constructor.
+     * @param path path to read maze environment from
+     * */
+    public Algorithm(String path) {
+        // initialisation
+        grid = new Grid(path);
+        utilities = new double[grid.MAX_ROW][grid.MAX_COL]; // initialise utilities to 0
+        policy = new Constants.Actions[grid.MAX_ROW][grid.MAX_COL];
+        history = new ArrayList<double[][]>(Constants.I);
+    }
+
+    /**
+     * Function that returns the utility of an action
+     * @param row current row number of the grid
+     * @param col current column number of the grid
+     * @param action action to move
+     * @return utility value. if a wall is present or it is at the corners, return 0
+     */
+    protected double calculateUtility(int row, int col, Constants.Actions action) {
+        double utility = 0;
+        switch (action) {
+            case U: utility = (row-1 >= 0 && !grid.getGrid().get(row-1)[col].isWall()) ? utilities[row-1][col] : utilities[row][col]; break;
+            case L: utility = (col-1 >= 0 && !grid.getGrid().get(row)[col-1].isWall()) ? utilities[row][col-1] : utilities[row][col]; break;
+            case R: utility = (col+1 < grid.MAX_COL && !grid.getGrid().get(row)[col+1].isWall()) ? utilities[row][col+1] : utilities[row][col]; break;
+            case D: utility = (row+1 < grid.MAX_ROW && !grid.getGrid().get(row+1)[col].isWall()) ? utilities[row+1][col] : utilities[row][col]; break;
+        }
+        return utility;
+    }
+
+    /**
+     * Function that returns the sum of all the utilities in the grid
+     * @return sum of all the utilities
+     * */
+    protected double totalUtility() {
+        double utility = 0;
+        for (int row=0; row<grid.MAX_ROW; row++)
+            for (int col=0; col<grid.MAX_COL; col++) {
+                if (grid.getGrid().get(row)[col].isWall()) continue; // skip wall
+                utility += utilities[row][col];
+            }
+        return utility;
+    }
+
+    /**
+     * Function that prints the grid policies
+     */
+    protected void printPolicy(){
+        for (int row = 0; row < grid.MAX_ROW; row++) {
+            for (int col = 0; col < grid.MAX_COL; col++) {
+                if (grid.getGrid().get(row)[col].isWall()) {
+                    System.out.print("| ");
+                    System.out.print("Wall");
+                    System.out.print(" ");
+                }
+                else {
+                    System.out.print("|   ");
+                    System.out.print(policy[row][col]);
+                    System.out.print("  ");
+                }
+            } System.out.print("|\n");
+        }
+    }
+
+    /**
+     * Function that prints the utility values
+     */
+    protected void printUtilities(){
+        for(int row=0; row<grid.MAX_ROW; row++) {
+            for (int col=0; col<grid.MAX_COL; col++) {
+                if(grid.getGrid().get(row)[col].isWall()) {
+                    System.out.print("|  ");
+                    System.out.print("Wall");
+                    System.out.print(" |");
+                }
+                else {
+                    System.out.print("|");
+                    System.out.print(String.format("%.5f", utilities[row][col]));
+                    System.out.print("|");
+                }
+            } System.out.print("\n");
+        }
+    }
+
+    /**
+     * Function that writes the history of utility values into a csv file
+     * */
+    protected void writeCSV() {
+        try {
+            FileWriter csv = new FileWriter("./Assignment 1/valueIteration.csv");
+
+            // write column names
+            for (int row=0; row<grid.MAX_ROW; row++)
+                for (int col=0; col<grid.MAX_COL; col++) {
+                    if (grid.getGrid().get(row)[col].isWall()) csv.write("Wall");
+                    else csv.write("("+row+", "+col+")");
+                    if (!(col==grid.MAX_COL-1 && row==grid.MAX_ROW-1)) csv.write(";");
+
+                }
+            csv.write("\n");
+
+            // write values
+            for (double[][] values : history) {
+                for (int row=0; row<grid.MAX_COL; row++)
+                    for (int col=0; col<grid.MAX_COL; col++) {
+                        if (col==grid.MAX_COL-1 && row==grid.MAX_ROW-1) csv.write(Double.toString(values[row][col]));
+                        else csv.write(Double.toString(values[row][col])+";");
+                    }
+                csv.write("\n");
+            }
+            csv.close();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+}

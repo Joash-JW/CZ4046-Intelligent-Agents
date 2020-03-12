@@ -1,6 +1,5 @@
-package main;
+package algo;
 
-import model.Grid;
 import model.State;
 import util.Constants;
 
@@ -8,28 +7,28 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PolicyIteration {
-    private static Grid grid;
-    public static double[][] utilities;
-    public static Constants.Actions[][] policy;
+public class PolicyIteration extends Algorithm {
 
-    public static void main(String[] args) {
-        grid = new Grid("./map/map1.txt");
-        utilities = new double[grid.MAX_ROW][grid.MAX_COL]; // initialise utilities to 0
-        policy = new Constants.Actions[grid.MAX_ROW][grid.MAX_COL];
+    public PolicyIteration(String path) {
+        super(path);
+    }
+
+    public void run() {
         initPolicy();
-        System.out.println("\n==============");
-        System.out.println("Initial Policy");
-        System.out.println("==============");
-        printPolicy();
-        System.out.println("\n");
+        // value iteration method
         runPolicyIteration();
+
+        // display results
+        System.out.println("Final Utility:");
+        printUtilities();
+        System.out.println("Final Policy:");
+        printPolicy();
     }
 
     /**
      * Function that initialises the grid policies, with action Right
      */
-    public static void initPolicy() {
+    private void initPolicy() {
         for (int row = 0; row < grid.MAX_ROW; row++)
             for (int col = 0; col < grid.MAX_COL; col++) {
                 if (grid.getGrid().get(row)[col].isWall()) continue;
@@ -37,27 +36,7 @@ public class PolicyIteration {
             }
     }
 
-    /**
-     * Function that prints the grid policies
-     */
-    public static void printPolicy(){
-        for (int row = 0; row < grid.MAX_ROW; row++) {
-            for (int col = 0; col < grid.MAX_COL; col++) {
-                if (grid.getGrid().get(row)[col].isWall()) {
-                    System.out.print("| ");
-                    System.out.print("Wall");
-                    System.out.print(" ");
-                }
-                else {
-                    System.out.print("|   ");
-                    System.out.print(policy[row][col]);
-                    System.out.print("  ");
-                }
-            } System.out.print("|\n");
-        }
-    }
-
-    public static void runPolicyIteration() {
+    private void runPolicyIteration() {
         boolean change;
         int iterations = 1;
         do {
@@ -71,10 +50,9 @@ public class PolicyIteration {
             iterations++;
             change = comparePolicy(oldPolicy, policy);
         } while (change);
-        printUtilities();
     }
 
-    public static void evaluatePolicy() {
+    private void evaluatePolicy() {
         int iterations = 1;
         do {
             for (int row = 0; row<grid.MAX_ROW; row++)
@@ -97,33 +75,7 @@ public class PolicyIteration {
         } while (++iterations <= Constants.I);
     }
 
-    /**
-     * Function that returns the utility of an action
-     * @param row current row number of the grid
-     * @param col current column number of the grid
-     * @param action action to move
-     * @return utility value. if a wall is present or it is at the corners, return 0
-     */
-    public static double calculateUtility(int row, int col, Constants.Actions action) {
-        double utility = 0;
-        switch (action) {
-            case U: utility = (row-1 >= 0 && !grid.getGrid().get(row-1)[col].isWall()) ? utilities[row-1][col] : utilities[row][col]; break;
-            case L: utility = (col-1 >= 0 && !grid.getGrid().get(row)[col-1].isWall()) ? utilities[row][col-1] : utilities[row][col]; break;
-            case R: utility = (col+1 < grid.MAX_COL && !grid.getGrid().get(row)[col+1].isWall()) ? utilities[row][col+1] : utilities[row][col]; break;
-            case D: utility = (row+1 < grid.MAX_ROW && !grid.getGrid().get(row+1)[col].isWall()) ? utilities[row+1][col] : utilities[row][col]; break;
-        }
-        return utility;
-    }
-
-    public static double totalUtility() {
-        double utility = 0;
-        for (int row=0; row<grid.MAX_ROW; row++) for (int col=0; col<grid.MAX_COL; col++) {
-            if (grid.getGrid().get(row)[col].isWall()) continue;
-            utility += utilities[row][col];
-        } return utility;
-    }
-
-    public static void policyImprovement() {
+    private void policyImprovement() {
         for (int row=0; row<grid.MAX_ROW; row++)
             for (int col=0; col<grid.MAX_COL; col++) {
                 State state = grid.getGrid().get(row)[col];
@@ -157,7 +109,7 @@ public class PolicyIteration {
     /**
      * Function that compares the 2 policies. Returns false when there is no change
      * */
-    public static boolean comparePolicy(Constants.Actions[][] oldPolicy, Constants.Actions[][] newPolicy) {
+    private boolean comparePolicy(Constants.Actions[][] oldPolicy, Constants.Actions[][] newPolicy) {
         for (int row=0; row<oldPolicy.length; row++) for (int col=0; col<oldPolicy[row].length; col++) {
             if (oldPolicy[row][col] == null) continue;
             else if (oldPolicy[row][col] != newPolicy[row][col]) {
@@ -166,27 +118,7 @@ public class PolicyIteration {
         } return false; // return false when there is no change
     }
 
-    public static void copy2DArray(Constants.Actions[][] src, Constants.Actions[][] dst) {
+    private void copy2DArray(Constants.Actions[][] src, Constants.Actions[][] dst) {
         for (int row = 0; row < src.length; row++) System.arraycopy(src[row], 0, dst[row], 0, src[row].length);
-    }
-
-    /**
-     * Function that prints the utility values
-     */
-    public static void printUtilities(){
-        for(int row=0; row<grid.MAX_ROW; row++) {
-            for (int col=0; col<grid.MAX_COL; col++) {
-                if(grid.getGrid().get(row)[col].isWall()) {
-                    System.out.print("|  ");
-                    System.out.print("Wall");
-                    System.out.print(" |");
-                }
-                else {
-                    System.out.print("|");
-                    System.out.print(String.format("%.5f", utilities[row][col]));
-                    System.out.print("|");
-                }
-            } System.out.print("\n");
-        }
     }
 }

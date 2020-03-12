@@ -19,7 +19,6 @@ public class Grid {
     /**
      * Constructor.
      * @param path path to read grid map from
-     * @return grid object
      */
     public Grid(String path) {
         File file = new File(path);
