@@ -1,5 +1,9 @@
 package util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 /*
  * This static class contains constants that needs to be used in the program
  * */
@@ -9,7 +13,7 @@ public class Constants {
     public static double BROWN_REWARD = -1.00;
     public static double WHITE_REWARD = -0.04;
 
-    public static final double DISCOUNT = 0.99; //Discount factor
+    public static final double DISCOUNT = 0.990; //Discount factor
 
     // Transition model
     public static final double INTENDED_PROB = 0.8;
@@ -17,12 +21,18 @@ public class Constants {
 
     public enum Actions { U, L, R, D } // actions: up, left, right, down
 
-    // Constant k (i.e. number of times simplified Bellman update is executed to produce the next utility estimate)
-    public static final int I = 500;
+    // the maximum reward
+    public static final double R_MAX = Collections.max(
+            new ArrayList<Double>(Arrays.asList(GREEN_REWARD, BROWN_REWARD, WHITE_REWARD)));
 
-    //public static final double Rmax = 1.0;
+    // Constant parameter C to adjust
+    public static final double C = 0.1;
 
-    //public static final double c = 1/(1-DISCOUNT);
+    public static final double EPSILON = C*R_MAX; // formula for epsilon
 
-    //public static final double UTILITY_UPPER_BOUND = c*Rmax;
+    // convergence threshold formula
+    public static final double CONVERGENCE_THRESH = EPSILON*(1-DISCOUNT)/DISCOUNT;
+
+    // Constant I (i.e. number of times simplified Bellman update is executed to produce the next utility estimate)
+    public static final int I = 100;
 }

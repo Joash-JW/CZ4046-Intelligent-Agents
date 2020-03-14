@@ -39,7 +39,6 @@ public class Grid {
         MAX_ROW = grid.size();
         MAX_COL = grid.get(0).length;
         System.out.println("Grid of " + MAX_ROW + "x" + MAX_COL + " loaded");
-        //printRewards();
     }
 
     /**

@@ -100,9 +100,9 @@ public abstract class Algorithm {
     /**
      * Function that writes the history of utility values into a csv file
      * */
-    protected void writeCSV() {
+    protected void writeCSV(String path) {
         try {
-            FileWriter csv = new FileWriter("./Assignment 1/valueIteration.csv");
+            FileWriter csv = new FileWriter(path);
 
             // write column names
             for (int row=0; row<grid.MAX_ROW; row++)

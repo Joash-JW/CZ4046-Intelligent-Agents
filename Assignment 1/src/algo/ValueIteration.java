@@ -16,7 +16,7 @@ public class ValueIteration extends Algorithm {
     /**
      * main entry point for value iteration algorithm
      * */
-    public void run() {
+    public void run(String csvPath) {
         // value iteration method
         runValueIteration();
 
@@ -27,7 +27,7 @@ public class ValueIteration extends Algorithm {
         printPolicy();
 
         // log utilities values to CSV for graph plotting
-        writeCSV();
+        writeCSV(csvPath);
     }
 
     /**
@@ -35,16 +35,24 @@ public class ValueIteration extends Algorithm {
      * */
     private void runValueIteration() {
         int iterations = 1;
+        double maxDelta;
         do {
-            getBestUtility();
-            System.out.println("Iteration " +iterations+ " - Total Utility: "+totalUtility());
+            maxDelta = 0;
+            maxDelta = getBestUtility(maxDelta);
+            System.out.println("Iteration " +iterations+ " - Max Delta: "+maxDelta);
             double[][] temp = new double[grid.MAX_ROW][grid.MAX_COL];
             copy2DArray(utilities, temp);
             history.add(temp);
-        } while (++iterations <= Constants.I);
+            iterations++;
+        } while (maxDelta >= Constants.CONVERGENCE_THRESH);
     }
 
-    private void getBestUtility() {
+    /**
+     * Function that calculates the utility values of actions and selects the optimal one
+     * @param delta a small value of type double, 0 or minimum value possible
+     * @return maximum change in utility
+     * */
+    private double getBestUtility(double delta) {
         for (int row = 0; row<grid.MAX_ROW; row++)
             for (int col = 0; col < grid.MAX_COL; col++) {
                 State state = grid.getGrid().get(row)[col];
@@ -63,6 +71,7 @@ public class ValueIteration extends Algorithm {
                     double leftUtility = calculateUtility(row, col, left);
                     double rightUtility = calculateUtility(row, col, right);
                     double utility = Constants.INTENDED_PROB*intendUtility + Constants.RIGHT_ANGLE_PROB*leftUtility + Constants.RIGHT_ANGLE_PROB*rightUtility;
+                    utility = state.getReward() + Constants.DISCOUNT*utility;
                     actionUtilities.put(intendedAction, utility);
                 }
                 Constants.Actions bestAction = null;
@@ -70,8 +79,10 @@ public class ValueIteration extends Algorithm {
                 for (Map.Entry<Constants.Actions, Double> map : actionUtilities.entrySet())
                     if(map.getValue() == bestUtility) bestAction = map.getKey();
                 policy[row][col] = bestAction;
-                utilities[row][col] = state.getReward() + Constants.DISCOUNT*bestUtility;
-            }
+                double newDelta = Math.abs(bestUtility - utilities[row][col]);
+                delta = Math.max(newDelta, delta);
+                utilities[row][col] = bestUtility;
+            } return delta;
     }
 
     /**
