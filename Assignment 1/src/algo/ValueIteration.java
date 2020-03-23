@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
 
+/*
+ * Subclass of Algorithm, implementing Value Iteration
+ * */
 public class ValueIteration extends Algorithm {
 
     public ValueIteration(String path) {
@@ -56,7 +59,7 @@ public class ValueIteration extends Algorithm {
         for (int row = 0; row<grid.MAX_ROW; row++)
             for (int col = 0; col < grid.MAX_COL; col++) {
                 State state = grid.getGrid().get(row)[col];
-                if (state.isWall()) continue;
+                if (state.isWall()) continue; // skip wall
                 HashMap<Constants.Actions, Double> actionUtilities = new HashMap<>(4);
                 for (Constants.Actions intendedAction: Constants.Actions.values()) {
                     Constants.Actions left, right;
@@ -90,7 +93,7 @@ public class ValueIteration extends Algorithm {
      * @param src source array of data type double to be copied from
      * @param dst destination array of data type double to be copied to
      * */
-    private void copy2DArray(double[][] src, double[][] dst) {
+    protected static void copy2DArray(double[][] src, double[][] dst) {
         for (int row = 0; row < src.length; row++)
             System.arraycopy(src[row], 0, dst[row], 0, src[row].length);
     }

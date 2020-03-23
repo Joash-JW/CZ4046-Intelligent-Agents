@@ -33,6 +33,7 @@ public class Constants {
     // convergence threshold formula
     public static final double CONVERGENCE_THRESH = EPSILON*(1-DISCOUNT)/DISCOUNT;
 
-    // Constant I (i.e. number of times simplified Bellman update is executed to produce the next utility estimate)
-    public static final int I = 100;
+    // Constant I - number of times simplified Bellman update
+    // is executed to produce the next utility estimate
+    public static final int I = 50;
 }

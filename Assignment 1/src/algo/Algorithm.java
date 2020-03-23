@@ -7,6 +7,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/*
+ * An abstract Algorithm class and contains:
+ * 1. grid - Grid object
+ * 2. utilities - utility values of the grid
+ * 3. policy - policy of the grid
+ * 4. history - to store utility values at each iteration
+ * */
 public abstract class Algorithm {
     protected Grid grid;
     protected double[][] utilities;
@@ -65,8 +72,7 @@ public abstract class Algorithm {
             for (int col = 0; col < grid.MAX_COL; col++) {
                 if (grid.getGrid().get(row)[col].isWall()) {
                     System.out.print("| ");
-                    System.out.print("Wall");
-                    System.out.print(" ");
+                    System.out.print("Wall ");
                 }
                 else {
                     System.out.print("|   ");
@@ -85,15 +91,14 @@ public abstract class Algorithm {
             for (int col=0; col<grid.MAX_COL; col++) {
                 if(grid.getGrid().get(row)[col].isWall()) {
                     System.out.print("|  ");
-                    System.out.print("Wall");
-                    System.out.print(" |");
+                    System.out.print("Wall  ");
                 }
                 else {
                     System.out.print("|");
                     System.out.print(String.format("%.5f", utilities[row][col]));
-                    System.out.print("|");
+                    System.out.print("");
                 }
-            } System.out.print("\n");
+            } System.out.print("|\n");
         }
     }
 
