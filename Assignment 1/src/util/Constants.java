@@ -6,7 +6,7 @@ import java.util.Collections;
 
 /*
  * This static class contains constants that needs to be used in the program
- * */
+ */
 public class Constants {
     // Reward values
     public static double GREEN_REWARD = +1.00;
@@ -28,7 +28,8 @@ public class Constants {
     // Constant parameter C to adjust
     public static final double C = 0.1;
 
-    public static final double EPSILON = C*R_MAX; // formula for epsilon
+    // formula for epsilon
+    public static final double EPSILON = C*R_MAX;
 
     // convergence threshold formula
     public static final double CONVERGENCE_THRESH = EPSILON*(1-DISCOUNT)/DISCOUNT;

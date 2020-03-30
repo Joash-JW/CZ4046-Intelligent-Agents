@@ -28,8 +28,4 @@ hs_err_pid*
 .idea/
 
 # Others
-*.pdf
-*.docx
-*.pptx
-*.xlsx
-*.csv
+others/

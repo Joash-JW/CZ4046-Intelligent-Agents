@@ -9,7 +9,7 @@ import java.util.Collections;
 
 /*
  * Subclass of Algorithm, implementing Value Iteration
- * */
+ */
 public class ValueIteration extends Algorithm {
 
     public ValueIteration(String path) {
@@ -18,7 +18,7 @@ public class ValueIteration extends Algorithm {
 
     /**
      * main entry point for value iteration algorithm
-     * */
+     */
     public void run(String csvPath) {
         // value iteration method
         runValueIteration();
@@ -35,7 +35,7 @@ public class ValueIteration extends Algorithm {
 
     /**
      * value iteration algorithm
-     * */
+     */
     private void runValueIteration() {
         int iterations = 1;
         double maxDelta;
@@ -43,9 +43,9 @@ public class ValueIteration extends Algorithm {
             maxDelta = 0;
             maxDelta = getBestUtility(maxDelta);
             System.out.println("Iteration " +iterations+ " - Max Delta: "+maxDelta);
-            double[][] temp = new double[grid.MAX_ROW][grid.MAX_COL];
-            copy2DArray(utilities, temp);
-            history.add(temp);
+            double[][] currUtilities = new double[grid.MAX_ROW][grid.MAX_COL];
+            copy2DArray(utilities, currUtilities);
+            history.add(currUtilities); // store utility estimates for this iteration
             iterations++;
         } while (maxDelta >= Constants.CONVERGENCE_THRESH);
     }
@@ -54,7 +54,7 @@ public class ValueIteration extends Algorithm {
      * Function that calculates the utility values of actions and selects the optimal one
      * @param delta a small value of type double, 0 or minimum value possible
      * @return maximum change in utility
-     * */
+     */
     private double getBestUtility(double delta) {
         for (int row = 0; row<grid.MAX_ROW; row++)
             for (int col = 0; col < grid.MAX_COL; col++) {
@@ -64,6 +64,7 @@ public class ValueIteration extends Algorithm {
                 for (Constants.Actions intendedAction: Constants.Actions.values()) {
                     Constants.Actions left, right;
                     left = right = null;
+                    // set right and left of intended action
                     switch (intendedAction) {
                         case U: left = Constants.Actions.L; right = Constants.Actions.R; break;
                         case L: left = Constants.Actions.D; right = Constants.Actions.U; break;
@@ -92,7 +93,7 @@ public class ValueIteration extends Algorithm {
      * Function that copies a utility 2D array into another 2D array
      * @param src source array of data type double to be copied from
      * @param dst destination array of data type double to be copied to
-     * */
+     */
     protected static void copy2DArray(double[][] src, double[][] dst) {
         for (int row = 0; row < src.length; row++)
             System.arraycopy(src[row], 0, dst[row], 0, src[row].length);

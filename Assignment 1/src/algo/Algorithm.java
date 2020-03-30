@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * 2. utilities - utility values of the grid
  * 3. policy - policy of the grid
  * 4. history - to store utility values at each iteration
- * */
+ */
 public abstract class Algorithm {
     protected Grid grid;
     protected double[][] utilities;
@@ -23,7 +23,7 @@ public abstract class Algorithm {
     /**
      * Constructor.
      * @param path path to read maze environment from
-     * */
+     */
     public Algorithm(String path) {
         // initialisation
         grid = new Grid(path);
@@ -37,30 +37,18 @@ public abstract class Algorithm {
      * @param row current row number of the grid
      * @param col current column number of the grid
      * @param action action to move
-     * @return utility value. if a wall is present or it is at the corners, return 0
+     * @return utility value of the action
      */
     protected double calculateUtility(int row, int col, Constants.Actions action) {
         double utility = 0;
+        // get the utility of the next state based on the action
+        // if a wall is present, the utility is the current state (no change)
         switch (action) {
             case U: utility = (row-1 >= 0 && !grid.getGrid().get(row-1)[col].isWall()) ? utilities[row-1][col] : utilities[row][col]; break;
             case L: utility = (col-1 >= 0 && !grid.getGrid().get(row)[col-1].isWall()) ? utilities[row][col-1] : utilities[row][col]; break;
             case R: utility = (col+1 < grid.MAX_COL && !grid.getGrid().get(row)[col+1].isWall()) ? utilities[row][col+1] : utilities[row][col]; break;
             case D: utility = (row+1 < grid.MAX_ROW && !grid.getGrid().get(row+1)[col].isWall()) ? utilities[row+1][col] : utilities[row][col]; break;
         }
-        return utility;
-    }
-
-    /**
-     * Function that returns the sum of all the utilities in the grid
-     * @return sum of all the utilities
-     * */
-    protected double totalUtility() {
-        double utility = 0;
-        for (int row=0; row<grid.MAX_ROW; row++)
-            for (int col=0; col<grid.MAX_COL; col++) {
-                if (grid.getGrid().get(row)[col].isWall()) continue; // skip wall
-                utility += utilities[row][col];
-            }
         return utility;
     }
 
@@ -100,11 +88,23 @@ public abstract class Algorithm {
                 }
             } System.out.print("|\n");
         }
+        for(int row=0; row<grid.MAX_ROW; row++) {
+            for (int col=0; col<grid.MAX_COL; col++) {
+                System.out.print("("+row+","+col+"): ");
+                if(grid.getGrid().get(row)[col].isWall()) {
+                    System.out.print("Wall");
+                }
+                else {
+                    System.out.print(String.format("%.3f", utilities[row][col]));
+                }
+                System.out.print("\n");
+            }
+        }
     }
 
     /**
      * Function that writes the history of utility values into a csv file
-     * */
+     */
     protected void writeCSV(String path) {
         try {
             FileWriter csv = new FileWriter(path);

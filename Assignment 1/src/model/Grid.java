@@ -10,7 +10,7 @@ import java.util.Scanner;
  * 1. grid - a list of State objects
  * 2. MAX_ROW - maximum number of rows
  * 3. MAX_COL - maximum number of columns
- * */
+ */
 public class Grid {
     private ArrayList<State[]> grid = new ArrayList<State[]>();
     public final int MAX_ROW;
@@ -19,6 +19,7 @@ public class Grid {
     /**
      * Constructor.
      * @param path path to read grid map from
+     * @exception FileNotFoundException if no file found on the given path
      */
     public Grid(String path) {
         File file = new File(path);
@@ -28,6 +29,8 @@ public class Grid {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        // read the text file
         while (sc.hasNextLine()) {
             String[] row = sc.nextLine().split("");
             State[] states = new State[row.length];
@@ -42,7 +45,7 @@ public class Grid {
     }
 
     /**
-     * Function that prints the reward values
+     * Function that prints the reward values. Used when I was debugging
      */
     public void printRewards() {
         for (State[] states : this.grid) {

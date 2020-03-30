@@ -3,10 +3,10 @@ package model;
 import util.Constants;
 
 /*
-* A State class represents each cell in the grid, and contains:
-* 1. isWall - whether it contains a wall
-* 2. reward - reward value of this state
-* */
+ * A State class represents each cell in the grid, and contains:
+ * 1. isWall - whether it contains a wall
+ * 2. reward - reward value of this state
+ */
 public class State {
     private boolean isWall;
     private double reward;
