@@ -26,6 +26,3 @@ hs_err_pid*
 # IDE files
 *.iml
 .idea/
-
-# Others
-others/
